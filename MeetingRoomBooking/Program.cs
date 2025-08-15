@@ -4,17 +4,36 @@ using System;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Tambahkan konfigurasi DbContext
+// Add services to the container.
+builder.Services.AddControllersWithViews();
+
+builder.Services.AddControllers(); // For API
+//builder.Services.AddRazorPages(); // For UI
+
+// Configure DbContext
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseMySql(
         builder.Configuration.GetConnectionString("DefaultConnection"),
         new MySqlServerVersion(new Version(10,4,32))
     ));
 
-// Add services to the container.
-builder.Services.AddRazorPages();
-
 var app = builder.Build();
+
+// Apply migrations at startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    try
+    {
+        var context = services.GetRequiredService<AppDbContext>();
+        context.Database.Migrate();
+    }
+    catch (Exception ex)
+    {
+        var logger = services.GetRequiredService<ILogger<Program>>();
+        logger.LogError(ex, "An error occurred while migrating the database.");
+    }
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -31,6 +50,12 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapRazorPages();
+// For UI
+//app.MapRazorPages();
+
+// For API
+app.MapControllerRoute(
+    name: "default",
+    pattern: "{controller=Home}/{action=Index}/{id?}");
 
 app.Run();

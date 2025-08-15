@@ -1,0 +1,62 @@
+﻿@using MeetingRoomBooking.Models
+@model IEnumerable<MeetingRoomBooking.Models.Booking>
+@{
+    ViewData["Title"] = "Bookings";
+}
+
+<h2>Bookings</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Booking</a>
+    <a asp-action="Calendar" class="btn btn-info ml-2">View Calendar</a>
+</p>
+
+<table class="table table-striped table-bordered">
+    <thead class="thead-dark">
+        <tr>
+            <th>Meeting Title</th>
+            <th>Room</th>
+            <th>Booked By</th>
+            <th>Start Time</th>
+            <th>End Time</th>
+            <th>Status</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var booking in Model)
+        {
+            <tr>
+                <td>@booking.MeetingTitle</td>
+                <td>@booking.Room?.RoomName</td>
+                <td>@booking.Employee?.EmployeeName</td>
+                <td>@booking.StartTime.ToString("g")</td>
+                <td>@booking.EndTime.ToString("g")</td>
+                <td>
+                    <span class="badge badge-@GetStatusClass(booking.Status)">
+                        @booking.Status
+                    </span>
+                </td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@booking.BookingId" class="btn btn-sm btn-info">Details</a>
+                    <a asp-action="Edit" asp-route-id="@booking.BookingId" class="btn btn-sm btn-warning">Edit</a>
+                    <a asp-action="Delete" asp-route-id="@booking.BookingId" class="btn btn-sm btn-danger">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@functions {
+    string GetStatusClass(BookingStatus status)
+    {
+        return status switch
+        {
+            BookingStatus.Approved => "success",
+            BookingStatus.Pending => "warning",
+            BookingStatus.Rejected => "danger",
+            BookingStatus.Cancelled => "secondary",
+            _ => "dark"
+        };
+    }
+}

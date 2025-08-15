@@ -1,0 +1,25 @@
+﻿@model MeetingRoomBooking.Models.Room
+
+<h2>Edit Room</h2>
+
+<form asp-action="Edit">
+    <input type="hidden" asp-for="RoomId" />
+    <div class="form-group">
+        <label asp-for="RoomName"></label>
+        <input asp-for="RoomName" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Description"></label>
+        <textarea asp-for="Description" class="form-control"></textarea>
+    </div>
+    <div class="form-group">
+        <label asp-for="Capacity"></label>
+        <input asp-for="Capacity" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label asp-for="Amenities"></label>
+        <input asp-for="Amenities" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Save</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

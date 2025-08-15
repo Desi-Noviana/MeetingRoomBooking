@@ -1,0 +1,35 @@
+﻿@model IEnumerable<MeetingRoomBooking.Models.Room>
+
+<h2>Room List</h2>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary">Create New Room</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Room Name</th>
+            <th>Description</th>
+            <th>Capacity</th>
+            <th>Amenities</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@item.RoomName</td>
+                <td>@item.Description</td>
+                <td>@item.Capacity</td>
+                <td>@item.Amenities</td>
+                <td>
+                    <a asp-action="Details" asp-route-id="@item.RoomId">Details</a> |
+                    <a asp-action="Edit" asp-route-id="@item.RoomId">Edit</a> |
+                    <a asp-action="Delete" asp-route-id="@item.RoomId">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

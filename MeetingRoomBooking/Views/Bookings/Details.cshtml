@@ -1,0 +1,36 @@
+﻿@model MeetingRoomBooking.Models.Booking
+@{
+    ViewData["Title"] = "Booking Details";
+}
+
+<h2>Booking Details</h2>
+
+<div>
+    <dl class="row">
+        <dt class="col-sm-3">Meeting Title</dt>
+        <dd class="col-sm-9">@Model.MeetingTitle</dd>
+
+        <dt class="col-sm-3">Room</dt>
+        <dd class="col-sm-9">@Model.Room?.RoomName</dd>
+
+        <dt class="col-sm-3">Employee</dt>
+        <dd class="col-sm-9">@Model.Employee?.EmployeeName</dd>
+
+        <dt class="col-sm-3">Start Time</dt>
+        <dd class="col-sm-9">@Model.StartTime.ToString("f")</dd>
+
+        <dt class="col-sm-3">End Time</dt>
+        <dd class="col-sm-9">@Model.EndTime.ToString("f")</dd>
+
+        <dt class="col-sm-3">Status</dt>
+        <dd class="col-sm-9">@Model.Status</dd>
+
+        <dt class="col-sm-3">Cancelled?</dt>
+        <dd class="col-sm-9">@Model.IsCancelled</dd>
+    </dl>
+</div>
+
+<p>
+    <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-warning">Edit</a>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>

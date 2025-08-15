@@ -1,0 +1,12 @@
+﻿@model MeetingRoomBooking.Models.Room
+
+<h2>Room Details</h2>
+
+<div>
+    <h4>@Model.RoomName</h4>
+    <p><strong>Description:</strong> @Model.Description</p>
+    <p><strong>Capacity:</strong> @Model.Capacity</p>
+    <p><strong>Amenities:</strong> @Model.Amenities</p>
+</div>
+
+<a asp-action="Index" class="btn btn-secondary">Back to List</a>

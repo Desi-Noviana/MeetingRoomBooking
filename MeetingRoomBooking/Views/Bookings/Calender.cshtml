@@ -1,0 +1,57 @@
+﻿@using MeetingRoomBooking.Models
+@model IEnumerable<MeetingRoomBooking.Models.Booking>
+@{
+    ViewData["Title"] = "Booking Calendar";
+}
+
+<h2>Booking Calendar</h2>
+
+<div id="calendar" class="border rounded p-3">
+    <table class="table table-bordered table-sm">
+        <thead class="thead-light">
+            <tr>
+                <th>Start</th>
+                <th>End</th>
+                <th>Meeting Title</th>
+                <th>Room</th>
+                <th>Employee</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in Model.OrderBy(b => b.StartTime))
+            {
+                <tr>
+                    <td>@booking.StartTime.ToString("dd MMM yyyy HH:mm")</td>
+                    <td>@booking.EndTime.ToString("dd MMM yyyy HH:mm")</td>
+                    <td>@booking.MeetingTitle</td>
+                    <td>@booking.Room?.RoomName</td>
+                    <td>@booking.Employee?.EmployeeName</td>
+                    <td>
+                        <span class="badge badge-@GetStatusClass(booking.Status)">
+                            @booking.Status
+                        </span>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
+
+<p>
+    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+</p>
+
+@functions {
+    string GetStatusClass(BookingStatus status)
+    {
+        return status switch
+        {
+            BookingStatus.Approved => "success",
+            BookingStatus.Pending => "warning",
+            BookingStatus.Rejected => "danger",
+            BookingStatus.Cancelled => "secondary",
+            _ => "dark"
+        };
+    }
+}

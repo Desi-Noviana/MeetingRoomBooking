@@ -1,0 +1,17 @@
+﻿@model MeetingRoomBooking.Models.Booking
+@{
+    ViewData["Title"] = "Delete Booking";
+}
+
+<h2>Delete Booking</h2>
+
+<h4>Are you sure you want to delete this booking?</h4>
+<div>
+    <strong>@Model.MeetingTitle</strong> — @Model.StartTime.ToString("g") to @Model.EndTime.ToString("g")
+</div>
+
+<form asp-action="DeleteConfirmed">
+    <input type="hidden" asp-for="BookingId" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

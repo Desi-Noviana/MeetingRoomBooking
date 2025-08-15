@@ -34,7 +34,9 @@ namespace MeetingRoomBooking.Models
         [Required]
         public bool IsCancelled { get; set; } = false;
         [Required]
-        public Guid? RecurrenceGroupId { get; set; }
+        public Guid RecurrenceGroupId { get; set; }
+        [Required]
+        public BookingStatus Status { get; set; } = BookingStatus.Pending;
 
         //public BookingStatus Status { get; set; } = BookingStatus.Pending;
 
@@ -43,4 +45,16 @@ namespace MeetingRoomBooking.Models
         public Employee? Employee { get; set; }
 
     }
+    public enum BookingStatus
+    {
+        [Display(Name = "Pending Approval")]
+        Pending,
+        [Display(Name = "Approved")]
+        Approved,
+        [Display(Name = "Rejected")]
+        Rejected,
+        [Display(Name = "Cancelled")]
+        Cancelled
+    }
+
 }
