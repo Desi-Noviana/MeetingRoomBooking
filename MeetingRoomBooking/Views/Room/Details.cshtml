@@ -1,12 +1,27 @@
 ﻿@model MeetingRoomBooking.Models.Room
 
-<h2>Room Details</h2>
+<h2 class="mb-4">🏢 Room Details</h2>
 
-<div>
-    <h4>@Model.RoomName</h4>
-    <p><strong>Description:</strong> @Model.Description</p>
-    <p><strong>Capacity:</strong> @Model.Capacity</p>
-    <p><strong>Amenities:</strong> @Model.Amenities</p>
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h4 class="card-title">@Model.RoomName</h4>
+        <p class="card-text text-muted">@Model.Description</p>
+
+        <p><strong>Capacity:</strong> @Model.Capacity people</p>
+
+        <p><strong>Amenities:</strong></p>
+        <ul class="list-inline">
+            @foreach (var amenity in Model.Amenities?.Split(',') ?? new string[0])
+            {
+                <li class="list-inline-item">
+                    <span class="badge bg-success">@amenity.Trim()</span>
+                </li>
+            }
+        </ul>
+
+        <div class="mt-4">
+            <a asp-action="Edit" asp-route-id="@Model.RoomId" class="btn btn-warning me-2">Edit</a>
+            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
+        </div>
+    </div>
 </div>
-
-<a asp-action="Index" class="btn btn-secondary">Back to List</a>

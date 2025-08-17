@@ -38,8 +38,6 @@ namespace MeetingRoomBooking.Models
         [Required]
         public BookingStatus Status { get; set; } = BookingStatus.Pending;
 
-        //public BookingStatus Status { get; set; } = BookingStatus.Pending;
-
         //Navigation Property (Back to Room)
         public Room? Room { get; set; }
         public Employee? Employee { get; set; }

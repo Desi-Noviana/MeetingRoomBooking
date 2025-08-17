@@ -3,15 +3,59 @@
     ViewData["Title"] = "Delete Booking";
 }
 
-<h2>Delete Booking</h2>
+<div class="container">
+    <h1>Delete Booking</h1>
 
-<h4>Are you sure you want to delete this booking?</h4>
-<div>
-    <strong>@Model.MeetingTitle</strong> — @Model.StartTime.ToString("g") to @Model.EndTime.ToString("g")
+    <div class="alert alert-danger">
+        <h4>Are you sure you want to delete this booking?</h4>
+        <p>Deleting this room will remove all its bookings from the system.</p>
+        <div>
+            <strong>@Model.MeetingTitle</strong> — @Model.StartTime.ToString("g") to @Model.EndTime.ToString("g")
+        </div>
+
+    </div>
+
+    <div class="card">
+        <div class="card-header bg-light">
+            <h5>@Model.MeetingTitle</h5>
+        </div>
+        <div class="card-body">
+            <dl class="row">
+                <dt class="col-sm-3">Capacity</dt>
+                <dd class="col-sm-9">@Model.Attendees</dd>
+
+                <dt class="col-sm-3">Description</dt>
+                <dd class="col-sm-9">@Model.Description</dd>
+
+                <dt class="col-sm-3">Attendees</dt>
+                <dd class="col-sm-9">@Model.Attendees</dd>
+
+                <dt class="col-sm-3">StartTime</dt>
+                <dd class="col-sm-9">@(Model.StartTime)</dd>
+
+                <dt class="col-sm-3">EndTime</dt>
+                <dd class="col-sm-9">@(Model.EndTime)</dd>
+
+                <dt class="col-sm-3">CancellationCode</dt>
+                <dd class="col-sm-9">@(Model.CancellationCode)</dd>
+
+                <dt class="col-sm-3">IsCancelled</dt>
+                <dd class="col-sm-9">@(Model.IsCancelled)</dd>
+
+                <dt class="col-sm-3">RecurrenceGroupId</dt>
+                <dd class="col-sm-9">@(Model.RecurrenceGroupId)</dd>
+
+                <dt class="col-sm-3">Status</dt>
+                <dd class="col-sm-9">@(Model.Status)</dd>
+
+            </dl>
+        </div>
+        <div class="card-footer">
+            <form asp-action="Delete">
+                <input type="hidden" asp-for="RoomId" />
+                <button type="submit" class="btn btn-danger">Delete</button>
+                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+            </form>
+        </div>
+    </div>
 </div>
-
-<form asp-action="DeleteConfirmed">
-    <input type="hidden" asp-for="BookingId" />
-    <button type="submit" class="btn btn-danger">Delete</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
-</form>

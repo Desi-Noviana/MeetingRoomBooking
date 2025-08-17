@@ -1,25 +1,42 @@
 ﻿@model MeetingRoomBooking.Models.Room
 
-<h2>Edit Room</h2>
+<h2 class="mb-4">✏️ Edit Room</h2>
 
 <form asp-action="Edit">
     <input type="hidden" asp-for="RoomId" />
-    <div class="form-group">
-        <label asp-for="RoomName"></label>
+
+    <div class="mb-3">
+        <label asp-for="RoomName" class="form-label">Room Name</label>
         <input asp-for="RoomName" class="form-control" />
+        <span asp-validation-for="RoomName" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Description"></label>
-        <textarea asp-for="Description" class="form-control"></textarea>
+
+    <div class="mb-3">
+        <label asp-for="Description" class="form-label">Description</label>
+        <textarea asp-for="Description" class="form-control" rows="3"></textarea>
+        <span asp-validation-for="Description" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Capacity"></label>
-        <input asp-for="Capacity" class="form-control" />
+
+    <div class="mb-3">
+        <label asp-for="Capacity" class="form-label">Capacity</label>
+        <input asp-for="Capacity" class="form-control" type="number" min="1" />
+        <span asp-validation-for="Capacity" class="text-danger"></span>
     </div>
-    <div class="form-group">
-        <label asp-for="Amenities"></label>
+
+    <div class="mb-3">
+        <label asp-for="Amenities" class="form-label">Amenities (comma-separated)</label>
         <input asp-for="Amenities" class="form-control" />
+        <span asp-validation-for="Amenities" class="text-danger"></span>
     </div>
-    <button type="submit" class="btn btn-primary">Save</button>
-    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+
+    <div class="mt-4">
+        <button type="submit" class="btn btn-primary me-2">💾 Save</button>
+        <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+    </div>
 </form>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

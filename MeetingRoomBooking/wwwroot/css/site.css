@@ -1,3 +1,4 @@
+@import url('site.css');
 html {
   font-size: 14px;
 }
@@ -19,4 +20,120 @@ html {
 
 body {
   margin-bottom: 60px;
+}
+
+/* === Dashboard Cards === */
+.stat-card {
+    border-radius: 12px;
+    padding: 1.5rem;
+    transition: transform 0.2s ease;
+}
+
+    .stat-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .stat-card .number {
+        font-size: 2rem;
+        font-weight: bold;
+    }
+
+    .stat-card .label {
+        font-size: 0.9rem;
+        color: #6c757d;
+    }
+
+/* === Quick Action Cards === */
+.feature-card:hover {
+    box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+    transform: translateY(-3px);
+    transition: 0.3s ease;
+}
+
+.feature-icon {
+    width: 60px;
+    height: 60px;
+    background-color: #f0f4f8;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 1rem;
+    font-size: 1.5rem;
+    color: #0d6efd;
+}
+
+/* === Table Hover === */
+.table-hover tbody tr:hover {
+    background-color: #f8f9fa;
+}
+
+/* === Section Spacing === */
+.dashboard-section {
+    margin-bottom: 3rem;
+}
+<style >
+#calendar {
+    font-family: 'Segoe UI', sans-serif;
+    font-size: 14px;
+}
+
+.fc-toolbar-title {
+    font-weight: 600;
+    font-size: 1.25rem;
+    color: #333;
+}
+
+.fc-button {
+    background-color: #f8f9fa !important;
+    border: 1px solid #ced4da !important;
+    color: #333 !important;
+    padding: 0.4rem 0.75rem !important;
+    font-size: 0.85rem !important;
+    border-radius: 6px !important;
+}
+
+    .fc-button:hover {
+        background-color: #e2e6ea !important;
+    }
+
+.fc-daygrid-event {
+    background-color: #0d6efd1a !important;
+    border: none !important;
+    color: #0d6efd !important;
+    padding: 2px 6px !important;
+    border-radius: 4px !important;
+    font-size: 0.8rem;
+}
+
+    .fc-daygrid-event:hover {
+        background-color: #0d6efd33 !important;
+    }
+
+.fc-daygrid-day-number {
+    font-weight: 500;
+    color: #555;
+}
+
+.fc-col-header-cell-cushion {
+    font-weight: 500;
+    font-size: 0.85rem;
+    color: #666;
+}
+
+.fc-daygrid-day {
+    transition: background-color 0.2s ease;
+}
+
+    .fc-daygrid-day:hover {
+        background-color: #f1f3f5;
+        cursor: pointer;
+    }
+
+</style >
+
+.fc-day-today {
+    background-color: #e9f5ff !important;
+    border: 1px solid #b6e0fe !important;
 }
