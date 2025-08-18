@@ -1,36 +1,73 @@
 ﻿@model MeetingRoomBooking.Models.Booking
+@using MeetingRoomBooking.Models
+
 @{
     ViewData["Title"] = "Booking Details";
+
+    var statusColor = Model.Status switch
+    {
+        BookingStatus.Pending => "badge bg-warning text-dark",
+        BookingStatus.Approved => "badge bg-success",
+        BookingStatus.Rejected => "badge bg-dark text-light",
+        BookingStatus.Cancelled => "badge bg-danger",
+        _ => "badge bg-secondary"
+    };
 }
 
-<h2>Booking Details</h2>
+<div class="container py-4">
+    <h2 class="mb-4 text-primary fw-bold">Booking Details</h2>
 
-<div>
-    <dl class="row">
-        <dt class="col-sm-3">Meeting Title</dt>
-        <dd class="col-sm-9">@Model.MeetingTitle</dd>
+    @if (Model.IsCancelled)
+    {
+        <div class="alert alert-danger">
+            <strong>Notice:</strong> This booking has been cancelled.
+        </div>
+    }
 
-        <dt class="col-sm-3">Room</dt>
-        <dd class="col-sm-9">@Model.Room?.RoomName</dd>
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-4 fw-semibold text-muted">Meeting Title</dt>
+                <dd class="col-sm-8">@Model.MeetingTitle</dd>
 
-        <dt class="col-sm-3">Employee</dt>
-        <dd class="col-sm-9">@Model.Employee?.EmployeeName</dd>
+                <dt class="col-sm-4 fw-semibold text-muted">Room</dt>
+                <dd class="col-sm-8">@Model.Room?.RoomName</dd>
 
-        <dt class="col-sm-3">Start Time</dt>
-        <dd class="col-sm-9">@Model.StartTime.ToString("f")</dd>
+                <dt class="col-sm-4 fw-semibold text-muted">Booked By</dt>
+                <dd class="col-sm-8">@Model.Employee?.EmployeeName</dd>
 
-        <dt class="col-sm-3">End Time</dt>
-        <dd class="col-sm-9">@Model.EndTime.ToString("f")</dd>
+                <dt class="col-sm-4 fw-semibold text-muted">Start Time</dt>
+                <dd class="col-sm-8">@Model.StartTime.ToString("f")</dd>
 
-        <dt class="col-sm-3">Status</dt>
-        <dd class="col-sm-9">@Model.Status</dd>
+                <dt class="col-sm-4 fw-semibold text-muted">End Time</dt>
+                <dd class="col-sm-8">@Model.EndTime.ToString("f")</dd>
 
-        <dt class="col-sm-3">Cancelled?</dt>
-        <dd class="col-sm-9">@Model.IsCancelled</dd>
-    </dl>
+                <dt class="col-sm-4 fw-semibold text-muted">Status</dt>
+                <dd class="col-sm-8">
+                    <span class="@statusColor px-3 py-2">@Model.Status</span>
+                </dd>
+
+                <dt class="col-sm-4 fw-semibold text-muted">Cancelled?</dt>
+                <dd class="col-sm-8">
+                    @if (Model.IsCancelled)
+                    {
+                        <span class="text-danger fw-bold">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="text-success">No</span>
+                    }
+                </dd>
+            </dl>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between mt-4">
+        <a asp-action="Index" class="btn btn-outline-secondary">
+            <i class="bi bi-arrow-left-circle me-1"></i> Back to List
+        </a>
+        <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-warning">
+            <i class="bi bi-pencil-square me-1"></i> Edit Booking
+        </a>
+    </div>
 </div>
-
-<p>
-    <a asp-action="Edit" asp-route-id="@Model.BookingId" class="btn btn-warning">Edit</a>
-    <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-</p>

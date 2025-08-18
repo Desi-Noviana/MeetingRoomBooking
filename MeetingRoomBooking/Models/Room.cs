@@ -4,6 +4,7 @@ namespace MeetingRoomBooking.Models
 {
     public class Room
     {
+        [Key]
         public int RoomId { get; set; } //Foreign Key
 
         [Required]

@@ -30,7 +30,7 @@ public class EmployeeController : Controller
         }
 
         var employee = await _context.Employees
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.EmployeeId == id);
         if (employee == null) 
         {
             return NotFound();
@@ -78,7 +78,7 @@ public class EmployeeController : Controller
     [ValidateAntiForgeryToken]
     public async Task<IActionResult> Edit(int id, [Bind("Id,EmployeeName,Email")] Employee employee)
     {
-        if (id != employee.Id)
+        if (id != employee.EmployeeId)
         {
             return NotFound();
         }
@@ -92,7 +92,7 @@ public class EmployeeController : Controller
             }
             catch (DbUpdateConcurrencyException)
             {
-                if (!EmployeeExists(employee.Id))
+                if (!EmployeeExists(employee.EmployeeId))
                 {
                     return NotFound();
                 }
@@ -115,7 +115,7 @@ public class EmployeeController : Controller
         }
 
         var employee = await _context.Employees
-            .FirstOrDefaultAsync(e => e.Id == id);
+            .FirstOrDefaultAsync(e => e.EmployeeId == id);
         if (employee == null)
         {
             return NotFound();
@@ -141,6 +141,6 @@ public class EmployeeController : Controller
 
     private bool EmployeeExists(int id)
     {
-        return _context.Employees.Any(e => e.Id == id);
+        return _context.Employees.Any(e => e.EmployeeId == id);
     }
 }

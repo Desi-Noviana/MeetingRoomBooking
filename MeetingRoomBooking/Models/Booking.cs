@@ -1,17 +1,23 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeetingRoomBooking.Models
 {
     public class Booking
     {
+        [Key]
         public int BookingId { get; set; }
 
         [Required]
+        [ForeignKey("Employee")]
         public int EmployeeId { get; set; } // Foreign Key From Employee
 
         [Required]
+        [ForeignKey("Room")]
         public int RoomId { get; set; } //Foreign Key From Room
-
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; } = string.Empty;
         [Required]
         [StringLength (100)]
         [Display (Name = "Meeting Title")]
@@ -30,7 +36,7 @@ namespace MeetingRoomBooking.Models
         [Display (Name = "End Time")]
         public DateTime EndTime { get; set; }   
         [Required]
-        public string CancellationCode { get; set; } = string.Empty;
+        public string CancellationCode { get; set; }= Guid.NewGuid().ToString("N");
         [Required]
         public bool IsCancelled { get; set; } = false;
         [Required]

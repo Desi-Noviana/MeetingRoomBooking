@@ -20,7 +20,7 @@ namespace MeetingRoomBooking.Data
         {
             // Employee: Unique constraint on EmployeeId + Email
             modelBuilder.Entity<Employee>()
-                .HasIndex(e => new { e.Id, e.Email })
+                .HasIndex(e => new { e.EmployeeId, e.Email })
                 .IsUnique();
 
             // Room: Unique RoomCode
@@ -48,9 +48,9 @@ namespace MeetingRoomBooking.Data
 
             //Seed Data for Employee
             modelBuilder.Entity<Employee>().HasData(
-                new Employee { Id = 1, EmployeeName = "Desi", Email = "desi@example.com" },
-                new Employee { Id = 2, EmployeeName = "Raka", Email = "raka@example.com" },
-                new Employee { Id = 3, EmployeeName = "George", Email = "george@example.com" }
+                new Employee { EmployeeId = 1, EmployeeName = "Desi", Email = "desi@example.com" },
+                new Employee { EmployeeId = 2, EmployeeName = "Raka", Email = "raka@example.com" },
+                new Employee { EmployeeId = 3, EmployeeName = "George", Email = "george@example.com" }
                 );
 
             //Seed Data for Room
@@ -61,16 +61,24 @@ namespace MeetingRoomBooking.Data
                     RoomName = "Conference Room A",
                     Capacity = 20,
                     Description = "Large conference room with projector and video conferencing equipment.",
-                    Amenities = "Computer"
+                    Amenities = "Tv,WhiteBoard"
                 },
                    new Room
                    {
                        RoomId = 2,
                        RoomName = "Conference Room B",
                        Capacity = 10,
-                       Description = "Medium-sized meeting room for team discussions.",
-                       Amenities = "Computer"
-                   }
+                       Description = "Small-sized meeting room for team discussions.",
+                       Amenities = "Computer & HDMI"
+                   },
+                     new Room
+                     {
+                         RoomId = 3,
+                         RoomName = "Conference Room C",
+                         Capacity = 15,
+                         Description = "Medium-sized meeting room for team discussions.",
+                         Amenities = "Proyektor"
+                     }
                 );
 
             //Seed Data for Booking\
@@ -78,16 +86,32 @@ namespace MeetingRoomBooking.Data
                 new Booking
                 {
                     BookingId = 1,
-                    EmployeeId = 1,
+                    EmployeeId = 2,
                     RoomId = 1,
+                    Email = "desi@example.com",
                     MeetingTitle = "Weekly Marketing Sync",
-                    Description = "Large conference room with projector and video conferencing equipment.",
-                    Attendees = 8,
-                    StartTime = new DateTime(2025, 8, 15, 10, 0, 0), // 5 Agustus 2025, jam 10:00
-                    EndTime = new DateTime(2025, 8, 15, 11, 0, 0),   // Selesai jam 11:00
+                    Description = "Large conference room with Computer & HDMI",
+                    Attendees = 20,
+                    StartTime = new DateTime(2025, 8, 18, 10, 0, 0), // 5 Agustus 2025, jam 10:00
+                    EndTime = new DateTime(2025, 8, 18, 11, 0, 0),   // Selesai jam 11:00
                     CancellationCode = Guid.NewGuid().ToString(),   // Kode unik untuk pembatalan
                     IsCancelled = false,
                     RecurrenceGroupId = Guid.Parse("d3f1c9e2-8a5b-4f2a-bf3a-9c3e2d1a7e99")
+                },
+                new Booking
+                {
+                    BookingId = 2,
+                    EmployeeId = 3,
+                    RoomId = 3,
+                    Email = "george@example.com",
+                    MeetingTitle = "Weekly Marketing Sync",
+                    Description = "Small conference with proyektor",
+                    Attendees = 8,
+                    StartTime = new DateTime(2025, 8, 19, 10, 0, 0), // 5 Agustus 2025, jam 10:00
+                    EndTime = new DateTime(2025, 8, 19, 11, 0, 0),   // Selesai jam 11:00
+                    CancellationCode = Guid.NewGuid().ToString(),   // Kode unik untuk pembatalan
+                    IsCancelled = false,
+                    RecurrenceGroupId = Guid.Parse("a987fbc9-4bed-3078-cf07-9141ba07c9f3")
                 }
                 );
         }

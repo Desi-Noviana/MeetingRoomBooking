@@ -1,61 +1,87 @@
 ﻿@model MeetingRoomBooking.Models.Booking
+@using MeetingRoomBooking.Models
+
 @{
     ViewData["Title"] = "Delete Booking";
+
+    var statusColor = Model.Status switch
+    {
+        BookingStatus.Pending => "badge bg-warning text-dark",
+        BookingStatus.Approved => "badge bg-success",
+        BookingStatus.Rejected => "badge bg-dark text-light",
+        BookingStatus.Cancelled => "badge bg-danger",
+        _ => "badge bg-secondary"
+    };
 }
 
-<div class="container">
-    <h1>Delete Booking</h1>
+<div class="container py-4">
+    <h2 class="text-danger fw-bold mb-3">Delete Booking</h2>
 
-    <div class="alert alert-danger">
-        <h4>Are you sure you want to delete this booking?</h4>
-        <p>Deleting this room will remove all its bookings from the system.</p>
-        <div>
-            <strong>@Model.MeetingTitle</strong> — @Model.StartTime.ToString("g") to @Model.EndTime.ToString("g")
+    <div class="alert alert-danger border-danger shadow-sm">
+        <h5 class="fw-semibold">Are you sure you want to delete this booking?</h5>
+        <p class="mb-2">This action is <strong>permanent</strong> and will remove the booking from the system.</p>
+        <div class="fw-bold">
+            <i class="bi bi-calendar-event me-1"></i> @Model.MeetingTitle<br />
+            <small class="text-muted">@Model.StartTime.ToString("f") → @Model.EndTime.ToString("f")</small>
         </div>
-
     </div>
 
-    <div class="card">
+    <div class="card shadow-sm border-0">
         <div class="card-header bg-light">
-            <h5>@Model.MeetingTitle</h5>
+            <h5 class="mb-0">@Model.MeetingTitle</h5>
         </div>
         <div class="card-body">
-            <dl class="row">
-                <dt class="col-sm-3">Capacity</dt>
-                <dd class="col-sm-9">@Model.Attendees</dd>
+            <dl class="row mb-0">
+                <dt class="col-sm-4 text-muted">Room</dt>
+                <dd class="col-sm-8">@Model.Room?.RoomName</dd>
 
-                <dt class="col-sm-3">Description</dt>
-                <dd class="col-sm-9">@Model.Description</dd>
+                <dt class="col-sm-4 text-muted">Booked By</dt>
+                <dd class="col-sm-8">@Model.Employee?.EmployeeName</dd>
 
-                <dt class="col-sm-3">Attendees</dt>
-                <dd class="col-sm-9">@Model.Attendees</dd>
+                <dt class="col-sm-4 text-muted">Attendees</dt>
+                <dd class="col-sm-8">@Model.Attendees</dd>
 
-                <dt class="col-sm-3">StartTime</dt>
-                <dd class="col-sm-9">@(Model.StartTime)</dd>
+                <dt class="col-sm-4 text-muted">Description</dt>
+                <dd class="col-sm-8">@Model.Description</dd>
 
-                <dt class="col-sm-3">EndTime</dt>
-                <dd class="col-sm-9">@(Model.EndTime)</dd>
+                <dt class="col-sm-4 text-muted">Start Time</dt>
+                <dd class="col-sm-8">@Model.StartTime.ToString("f")</dd>
 
-                <dt class="col-sm-3">CancellationCode</dt>
-                <dd class="col-sm-9">@(Model.CancellationCode)</dd>
+                <dt class="col-sm-4 text-muted">End Time</dt>
+                <dd class="col-sm-8">@Model.EndTime.ToString("f")</dd>
 
-                <dt class="col-sm-3">IsCancelled</dt>
-                <dd class="col-sm-9">@(Model.IsCancelled)</dd>
+                <dt class="col-sm-4 text-muted">Status</dt>
+                <dd class="col-sm-8"><span class="@statusColor px-3 py-2">@Model.Status</span></dd>
 
-                <dt class="col-sm-3">RecurrenceGroupId</dt>
-                <dd class="col-sm-9">@(Model.RecurrenceGroupId)</dd>
+                <dt class="col-sm-4 text-muted">Cancelled?</dt>
+                <dd class="col-sm-8">
+                    @if (Model.IsCancelled)
+                    {
+                        <span class="text-danger fw-bold">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="text-success">No</span>
+                    }
+                </dd>
 
-                <dt class="col-sm-3">Status</dt>
-                <dd class="col-sm-9">@(Model.Status)</dd>
+                <dt class="col-sm-4 text-muted">Cancellation Code</dt>
+                <dd class="col-sm-8">@Model.CancellationCode</dd>
 
+                <dt class="col-sm-4 text-muted">Recurrence Group</dt>
+                <dd class="col-sm-8">@Model.RecurrenceGroupId</dd>
             </dl>
         </div>
-        <div class="card-footer">
-            <form asp-action="Delete">
+        <div class="card-footer d-flex justify-content-between">
+            <form asp-action="Delete" method="post" onsubmit="return confirm('Confirm delete? This cannot be undone.');">
                 <input type="hidden" asp-for="RoomId" />
-                <button type="submit" class="btn btn-danger">Delete</button>
-                <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+                <button type="submit" class="btn btn-danger">
+                    <i class="bi bi-trash me-1"></i> Confirm Delete
+                </button>
             </form>
+            <a asp-action="Index" class="btn btn-outline-secondary">
+                <i class="bi bi-arrow-left-circle me-1"></i> Cancel
+            </a>
         </div>
     </div>
 </div>

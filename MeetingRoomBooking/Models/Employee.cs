@@ -4,13 +4,14 @@ namespace MeetingRoomBooking.Models
 {
     public class Employee
     {
-        public int Id { get; set; } //Primary Key & Foreign key
+        [Key]
+        public int EmployeeId { get; set; } //Primary Key & Foreign key
 
         [Required]
         [StringLength(100)]
         public string EmployeeName { get; set; } = string.Empty;
         [Required]
-        [StringLength(50)]
+        [EmailAddress]
         public string Email { get; set; }
 
         //Navigation Property

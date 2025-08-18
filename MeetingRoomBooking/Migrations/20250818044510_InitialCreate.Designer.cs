@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingRoomBooking.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20250814071839_InitialCreate")]
+    [Migration("20250818044510_InitialCreate")]
     partial class InitialCreate
     {
         /// <inheritdoc />
@@ -33,12 +33,16 @@ namespace MeetingRoomBooking.Migrations
 
                     b.Property<string>("CancellationCode")
                         .IsRequired()
-                        .HasColumnType("longtext");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
+
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
 
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
@@ -54,8 +58,7 @@ namespace MeetingRoomBooking.Migrations
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.Property<Guid?>("RecurrenceGroupId")
-                        .IsRequired()
+                    b.Property<Guid>("RecurrenceGroupId")
                         .HasColumnType("char(36)");
 
                     b.Property<int>("RoomId")
@@ -64,34 +67,99 @@ namespace MeetingRoomBooking.Migrations
                     b.Property<DateTime>("StartTime")
                         .HasColumnType("datetime(6)");
 
+                    b.Property<int>("Status")
+                        .HasColumnType("int");
+
                     b.HasKey("BookingId");
+
+                    b.HasIndex("BookingId")
+                        .IsUnique();
+
+                    b.HasIndex("CancellationCode")
+                        .IsUnique();
 
                     b.HasIndex("EmployeeId");
 
                     b.HasIndex("RoomId");
 
                     b.ToTable("Bookings");
+
+                    b.HasData(
+                        new
+                        {
+                            BookingId = 1,
+                            Attendees = 20,
+                            CancellationCode = "28e3bb9b-2dfa-43e6-8531-09e039d13d07",
+                            Description = "Large conference room with Computer & HDMI",
+                            Email = "desi@example.com",
+                            EmployeeId = 2,
+                            EndTime = new DateTime(2025, 8, 18, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCancelled = false,
+                            MeetingTitle = "Weekly Marketing Sync",
+                            RecurrenceGroupId = new Guid("d3f1c9e2-8a5b-4f2a-bf3a-9c3e2d1a7e99"),
+                            RoomId = 1,
+                            StartTime = new DateTime(2025, 8, 18, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0
+                        },
+                        new
+                        {
+                            BookingId = 2,
+                            Attendees = 8,
+                            CancellationCode = "b72e04b6-ad15-4ca3-b088-4ba06a190b6f",
+                            Description = "Small conference with proyektor",
+                            Email = "george@example.com",
+                            EmployeeId = 3,
+                            EndTime = new DateTime(2025, 8, 19, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCancelled = false,
+                            MeetingTitle = "Weekly Marketing Sync",
+                            RecurrenceGroupId = new Guid("a987fbc9-4bed-3078-cf07-9141ba07c9f3"),
+                            RoomId = 3,
+                            StartTime = new DateTime(2025, 8, 19, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0
+                        });
                 });
 
             modelBuilder.Entity("MeetingRoomBooking.Models.Employee", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("EmployeeName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmployeeId");
+
+                    b.HasIndex("EmployeeId", "Email")
+                        .IsUnique();
 
                     b.ToTable("Employees");
+
+                    b.HasData(
+                        new
+                        {
+                            EmployeeId = 1,
+                            Email = "desi@example.com",
+                            EmployeeName = "Desi"
+                        },
+                        new
+                        {
+                            EmployeeId = 2,
+                            Email = "raka@example.com",
+                            EmployeeName = "Raka"
+                        },
+                        new
+                        {
+                            EmployeeId = 3,
+                            Email = "george@example.com",
+                            EmployeeName = "George"
+                        });
                 });
 
             modelBuilder.Entity("MeetingRoomBooking.Models.Room", b =>
@@ -120,7 +188,36 @@ namespace MeetingRoomBooking.Migrations
 
                     b.HasKey("RoomId");
 
+                    b.HasIndex("RoomId")
+                        .IsUnique();
+
                     b.ToTable("Rooms");
+
+                    b.HasData(
+                        new
+                        {
+                            RoomId = 1,
+                            Amenities = "Tv,WhiteBoard",
+                            Capacity = 20,
+                            Description = "Large conference room with projector and video conferencing equipment.",
+                            RoomName = "Conference Room A"
+                        },
+                        new
+                        {
+                            RoomId = 2,
+                            Amenities = "Computer & HDMI",
+                            Capacity = 10,
+                            Description = "Small-sized meeting room for team discussions.",
+                            RoomName = "Conference Room B"
+                        },
+                        new
+                        {
+                            RoomId = 3,
+                            Amenities = "Proyektor",
+                            Capacity = 15,
+                            Description = "Medium-sized meeting room for team discussions.",
+                            RoomName = "Conference Room C"
+                        });
                 });
 
             modelBuilder.Entity("MeetingRoomBooking.Models.Booking", b =>

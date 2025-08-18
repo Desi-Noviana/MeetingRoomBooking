@@ -9,10 +9,12 @@ namespace MeetingRoomBooking.Controllers
     public class BookingsController : Controller
     {
         private readonly AppDbContext _context;
+        private readonly ILogger<BookingsController> _logger;
 
-        public BookingsController(AppDbContext context)
+        public BookingsController(AppDbContext context, ILogger<BookingsController> logger)
         {
             _context = context;
+            _logger = logger;
         }
 
         // GET: Bookings
@@ -108,143 +110,183 @@ namespace MeetingRoomBooking.Controllers
         // POST: Bookings/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("BookingId,EmployeeId,RoomId,MeetingTitle,Description,Attendees,StartTime,EndTime,CancellationCode,IsCancelled,RecurrenceGroupId,Status")] Booking booking)
+        public async Task<IActionResult> Create([Bind("BookingId,EmployeeId,RoomId,Email,MeetingTitle,Description,Attendees,StartTime,EndTime,CancellationCode,IsCancelled,RecurrenceGroupId,Status")] Booking booking)
         {
-            if (ModelState.IsValid)
+            PopulateDropdowns(booking.RoomId, booking.EmployeeId);
+
+            // 1. Validate Employee Identity
+            var employee = await _context.Employees
+                .Where(e => e.EmployeeId == booking.EmployeeId && e.Email == booking.Email)
+                .FirstOrDefaultAsync();
+            if (employee == null)
             {
-                // Validasi ketersediaan ruangan
-                bool isRoomAvailable = await IsRoomAvailable(booking.RoomId, booking.StartTime, booking.EndTime, booking.EmployeeId);
-                if (!isRoomAvailable)
-                {
-                    ModelState.AddModelError("", "The room is not available during the selected time.");
-                    PopulateDropdowns(booking.RoomId, booking.EmployeeId);
-                    return View(booking);
-                }
-
-                // Validasi waktu
-                if (booking.EndTime <= booking.StartTime)
-                {
-                    ModelState.AddModelError("EndTime", "End time must be after start time.");
-                    PopulateDropdowns(booking.RoomId, booking.EmployeeId);
-                    return View(booking);
-                }
-
-                // Validasi kapasitas ruangan
-                var room = await _context.Rooms.FindAsync(booking.RoomId);
-                if (room != null && booking.Attendees > room.Capacity)
-                {
-                    ModelState.AddModelError("Attendees", $"The number of attendees exceeds the room capacity ({room.Capacity}).");
-                    PopulateDropdowns(booking.RoomId, booking.EmployeeId);
-                    return View(booking);
-                }
-
-                booking.Status = BookingStatus.Pending;
-                _context.Add(booking);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("EmployeeId", "Employee not found.");
+                return View(booking);
             }
 
-            PopulateDropdowns(booking.RoomId, booking.EmployeeId);
-            return View(booking);
+            // 2. Validate Time Range
+            if (booking.EndTime <= booking.StartTime)
+            {
+                ModelState.AddModelError("EndTime", "End time must be after start time.");
+                return View(booking);
+            }
+            // 3. Validate Room Capacity
+            var room = await _context.Rooms.FindAsync(booking.RoomId);
+            if (room == null)
+            {
+                ModelState.AddModelError("RoomId", "Room not found.");
+                return View(booking);
+            }
+
+            if (booking.Attendees > room.Capacity)
+            {
+                ModelState.AddModelError("Attendees", $"Attendees exceed room capacity ({room.Capacity}).");
+                return View(booking);
+            }
+
+            // 4. Prime-Time Restriction (9–12 only 1 hour max)
+            var startTime = booking.StartTime.TimeOfDay;
+            var isPrimeTime = startTime >= TimeSpan.FromHours(9) && startTime < TimeSpan.FromHours(12);
+            var duration = booking.EndTime - booking.StartTime;
+
+            if (isPrimeTime && duration.TotalMinutes > 60)
+            {
+                ModelState.AddModelError("", "Prime-time bookings (9AM–12PM) cannot exceed 1 hour.");
+                return View(booking);
+            }
+
+            // 5. Buffer Time Conflict Detection
+            var bufferStart = booking.StartTime.AddMinutes(-15);
+            var bufferEnd = booking.EndTime.AddMinutes(15);
+
+            bool isConflict = await _context.Bookings.AnyAsync(b =>
+                b.RoomId == booking.RoomId &&
+                ((bufferStart < b.EndTime.AddMinutes(15)) && (bufferEnd > b.StartTime.AddMinutes(-15)))
+            );
+
+            if (!ModelState.IsValid || isConflict)
+            {
+                if (isConflict)
+                    ModelState.AddModelError("", "Time slot is unavailable due to buffer conflict.");
+                return View(booking);
+            }
+
+            // 6. Finalize Booking
+            booking.CancellationCode = Guid.NewGuid().ToString("N");
+            booking.IsCancelled = false;
+            booking.Status = BookingStatus.Pending;
+
+            _context.Add(booking);
+            await _context.SaveChangesAsync();
+
+            // Optional: Log confirmation
+            _logger.LogInformation($"Booking created: {booking.BookingId} for {employee.Email}");
+
+            return RedirectToAction(nameof(Index));
         }
+
 
         // GET: Bookings/Edit/5
         public async Task<IActionResult> Edit(int? id)
         {
             if (id == null)
-            {
                 return NotFound();
-            }
 
-            var booking = await _context.Bookings.FindAsync(id);
+            var booking = await _context.Bookings
+                .Include(b => b.Employee)
+                .Include(b => b.Room)
+                .FirstOrDefaultAsync(b => b.BookingId == id);
+
             if (booking == null)
-            {
                 return NotFound();
-            }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomName", booking.RoomId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "EmployeeName", booking.EmployeeId);
+
+            PopulateDropdowns(booking.RoomId, booking.EmployeeId);
             return View(booking);
         }
 
         // POST: Bookings/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("BookingId,EmployeeId,RoomId,MeetingTitle,Description,Attendees,StartTime,EndTime,CancellationCode,IsCancelled,RecurrenceGroupId,Status")] Booking booking)
+        public async Task<IActionResult> Edit(int id, [Bind("BookingId,EmployeeId,RoomId,Email,MeetingTitle,Description,Attendees,StartTime,EndTime,CancellationCode,IsCancelled,RecurrenceGroupId,Status")] Booking booking)
         {
             if (id != booking.BookingId)
-            {
                 return NotFound();
-            }
 
-            if (ModelState.IsValid)
+            PopulateDropdowns(booking.RoomId, booking.EmployeeId);
+
+            var employee = await _context.Employees
+                .Where(e => e.EmployeeId == booking.EmployeeId && e.Email == booking.Email)
+                .FirstOrDefaultAsync();
+            if (employee == null)
             {
-                // Check if the room is available during the requested time
-                bool isRoomAvailable = await IsRoomAvailable(booking.RoomId, booking.StartTime, booking.EndTime, booking.BookingId);
-                if (!isRoomAvailable)
-                {
-                    ModelState.AddModelError("", "The room is not available during the selected time.");
-                    ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomName", booking.RoomId);
-                    ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "EmployeeName", booking.EmployeeId);
-                    return View(booking);
-                }
-
-                // Validate that EndTime is after StartTime
-                if (booking.EndTime <= booking.StartTime)
-                {
-                    ModelState.AddModelError("EndTime", "End time must be after start time.");
-                    ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomName", booking.RoomId);
-                    ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "EmployeeName", booking.EmployeeId);
-                    return View(booking);
-                }
-
-                // Check if number of attendees exceeds room capacity
-                var room = await _context.Rooms.FindAsync(booking.RoomId, booking.EmployeeId);
-                if (room != null && booking.Attendees > room.Capacity)
-                {
-                    ModelState.AddModelError("Attendees", $"The number of attendees exceeds the room capacity ({room.Capacity}).");
-                    ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomName", booking.RoomId);
-                    ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "EmployeeName", booking.EmployeeId);
-                    return View(booking);
-                }
-
-                try
-                {
-                    // Update approach that's more testable
-                    var existingBooking = await _context.Bookings.FindAsync(booking.BookingId);
-                    if (existingBooking != null)
-                    {
-                        // Update all properties
-                        existingBooking.EmployeeId = booking.EmployeeId;
-                        existingBooking.RoomId = booking.RoomId;
-                        existingBooking.MeetingTitle = booking.MeetingTitle;
-                        existingBooking.Description = booking.Description;
-                        existingBooking.Attendees = booking.Attendees;
-                        existingBooking.CancellationCode = booking.CancellationCode;
-                        existingBooking.IsCancelled = booking.IsCancelled;
-                        existingBooking.StartTime = booking.StartTime;
-                        existingBooking.EndTime = booking.EndTime;
-                        existingBooking.Status = booking.Status;
-                        existingBooking.RecurrenceGroupId = booking.RecurrenceGroupId;
-                        
-                        await _context.SaveChangesAsync();
-                    }
-                }
-                catch (DbUpdateConcurrencyException)
-                {
-                    if (!BookingExists(booking.BookingId))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
-                }
-                return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("EmployeeId", "Employee not found.");
+                return View(booking);
             }
-            ViewData["RoomId"] = new SelectList(_context.Rooms, "RoomId", "RoomName", booking.RoomId);
-            ViewData["EmployeeId"] = new SelectList(_context.Employees, "EmployeeId", "EmployeeName", booking.EmployeeId);
-            return View(booking);
+
+            if (booking.EndTime <= booking.StartTime)
+            {
+                ModelState.AddModelError("EndTime", "End time must be after start time.");
+                return View(booking);
+            }
+
+            var room = await _context.Rooms.FindAsync(booking.RoomId);
+            if (room == null)
+            {
+                ModelState.AddModelError("RoomId", "Room not found.");
+                return View(booking);
+            }
+
+            if (booking.Attendees > room.Capacity)
+            {
+                ModelState.AddModelError("Attendees", $"Attendees exceed room capacity ({room.Capacity}).");
+                return View(booking);
+            }
+
+            var startTime = booking.StartTime.TimeOfDay;
+            var isPrimeTime = startTime >= TimeSpan.FromHours(9) && startTime < TimeSpan.FromHours(12);
+            var duration = booking.EndTime - booking.StartTime;
+
+            if (isPrimeTime && duration.TotalMinutes > 60)
+            {
+                ModelState.AddModelError("", "Prime-time bookings (9AM–12PM) cannot exceed 1 hour.");
+                return View(booking);
+            }
+
+            var bufferStart = booking.StartTime.AddMinutes(-15);
+            var bufferEnd = booking.EndTime.AddMinutes(15);
+
+            bool isConflict = await _context.Bookings.AnyAsync(b =>
+                b.BookingId != booking.BookingId &&
+                b.RoomId == booking.RoomId &&
+                ((bufferStart < b.EndTime.AddMinutes(15)) && (bufferEnd > b.StartTime.AddMinutes(-15)))
+            );
+
+            if (!ModelState.IsValid || isConflict)
+            {
+                if (isConflict)
+                    ModelState.AddModelError("", "Time slot is unavailable due to buffer conflict.");
+                return View(booking);
+            }
+
+            try
+            {
+                booking.Status = BookingStatus.Pending;
+                booking.IsCancelled = false;
+
+                _context.Update(booking);
+                await _context.SaveChangesAsync();
+
+                _logger.LogInformation($"Booking updated: {booking.BookingId} by {employee.Email}");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!_context.Bookings.Any(b => b.BookingId == booking.BookingId))
+                    return NotFound();
+                else
+                    throw;
+            }
+
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Bookings/Delete/5
@@ -305,8 +347,8 @@ namespace MeetingRoomBooking.Controllers
                     title = b.MeetingTitle,
                     description = b.Description,
                     attendees = b.Attendees,
-                    roomName = b.Room,
-                    bookedBy = b.Employee,
+                    roomName = b.Room != null ? b.Room.RoomName : "(Unknown Room)",
+                    bookedBy = b.Employee != null ? b.Employee.EmployeeName : "(Unknown Employee)",
                     start = b.StartTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                     end = b.EndTime.ToString("yyyy-MM-ddTHH:mm:ss"),
                     isCancelled = b.IsCancelled,

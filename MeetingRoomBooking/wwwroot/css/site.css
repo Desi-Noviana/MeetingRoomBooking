@@ -73,6 +73,7 @@ body {
 .dashboard-section {
     margin-bottom: 3rem;
 }
+/* === Responsive Design === */
 <style >
 #calendar {
     font-family: 'Segoe UI', sans-serif;
@@ -133,7 +134,58 @@ body {
 
 </style >
 
+/* === Calendar Styles === */
 .fc-day-today {
     background-color: #e9f5ff !important;
     border: 1px solid #b6e0fe !important;
 }
+.stat-card {
+    border-radius: 0.75rem;
+    padding: 1.5rem 1rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+
+    .stat-card:hover {
+        transform: scale(1.03);
+    }
+
+    /* === Feature Cards === */
+.feature-icon {
+    font-size: 2.5rem;
+    margin-bottom: 0.75rem;
+    color: #0d6efd;
+}
+
+.feature-card:hover .feature-icon {
+    color: #6610f2;
+}
+.feature-card {
+    border-radius: 0.75rem;
+    box-shadow: 0 0.25rem 0.75rem rgba(0,0,0,0.05);
+    transition: transform 0.2s ease;
+}
+
+    .feature-card:hover {
+        transform: scale(1.02);
+    }
+
+.feature-icon {
+    color: #0d6efd;
+}
+
+/* === Back to Home Button === */
+.back-to-home {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 999;
+    padding: 0.6rem 1rem;
+    font-weight: 500;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+    transition: transform 0.2s ease;
+}
+
+    .back-to-home:hover {
+        transform: scale(1.05);
+    }

@@ -37,6 +37,10 @@ namespace MeetingRoomBooking.Migrations
                         .HasMaxLength(500)
                         .HasColumnType("varchar(500)");
 
+                    b.Property<string>("Email")
+                        .IsRequired()
+                        .HasColumnType("longtext");
+
                     b.Property<int>("EmployeeId")
                         .HasColumnType("int");
 
@@ -81,39 +85,55 @@ namespace MeetingRoomBooking.Migrations
                         new
                         {
                             BookingId = 1,
-                            Attendees = 8,
-                            CancellationCode = "262c0408-958a-4b33-b0aa-11c5a19ed6f8",
-                            Description = "Large conference room with projector and video conferencing equipment.",
-                            EmployeeId = 1,
-                            EndTime = new DateTime(2025, 8, 15, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            Attendees = 20,
+                            CancellationCode = "28e3bb9b-2dfa-43e6-8531-09e039d13d07",
+                            Description = "Large conference room with Computer & HDMI",
+                            Email = "desi@example.com",
+                            EmployeeId = 2,
+                            EndTime = new DateTime(2025, 8, 18, 11, 0, 0, 0, DateTimeKind.Unspecified),
                             IsCancelled = false,
                             MeetingTitle = "Weekly Marketing Sync",
                             RecurrenceGroupId = new Guid("d3f1c9e2-8a5b-4f2a-bf3a-9c3e2d1a7e99"),
                             RoomId = 1,
-                            StartTime = new DateTime(2025, 8, 15, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            StartTime = new DateTime(2025, 8, 18, 10, 0, 0, 0, DateTimeKind.Unspecified),
+                            Status = 0
+                        },
+                        new
+                        {
+                            BookingId = 2,
+                            Attendees = 8,
+                            CancellationCode = "b72e04b6-ad15-4ca3-b088-4ba06a190b6f",
+                            Description = "Small conference with proyektor",
+                            Email = "george@example.com",
+                            EmployeeId = 3,
+                            EndTime = new DateTime(2025, 8, 19, 11, 0, 0, 0, DateTimeKind.Unspecified),
+                            IsCancelled = false,
+                            MeetingTitle = "Weekly Marketing Sync",
+                            RecurrenceGroupId = new Guid("a987fbc9-4bed-3078-cf07-9141ba07c9f3"),
+                            RoomId = 3,
+                            StartTime = new DateTime(2025, 8, 19, 10, 0, 0, 0, DateTimeKind.Unspecified),
                             Status = 0
                         });
                 });
 
             modelBuilder.Entity("MeetingRoomBooking.Models.Employee", b =>
                 {
-                    b.Property<int>("Id")
+                    b.Property<int>("EmployeeId")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("int");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasMaxLength(50)
-                        .HasColumnType("varchar(50)");
+                        .HasColumnType("varchar(255)");
 
                     b.Property<string>("EmployeeName")
                         .IsRequired()
                         .HasMaxLength(100)
                         .HasColumnType("varchar(100)");
 
-                    b.HasKey("Id");
+                    b.HasKey("EmployeeId");
 
-                    b.HasIndex("Id", "Email")
+                    b.HasIndex("EmployeeId", "Email")
                         .IsUnique();
 
                     b.ToTable("Employees");
@@ -121,19 +141,19 @@ namespace MeetingRoomBooking.Migrations
                     b.HasData(
                         new
                         {
-                            Id = 1,
+                            EmployeeId = 1,
                             Email = "desi@example.com",
                             EmployeeName = "Desi"
                         },
                         new
                         {
-                            Id = 2,
+                            EmployeeId = 2,
                             Email = "raka@example.com",
                             EmployeeName = "Raka"
                         },
                         new
                         {
-                            Id = 3,
+                            EmployeeId = 3,
                             Email = "george@example.com",
                             EmployeeName = "George"
                         });
@@ -174,7 +194,7 @@ namespace MeetingRoomBooking.Migrations
                         new
                         {
                             RoomId = 1,
-                            Amenities = "Computer",
+                            Amenities = "Tv,WhiteBoard",
                             Capacity = 20,
                             Description = "Large conference room with projector and video conferencing equipment.",
                             RoomName = "Conference Room A"
@@ -182,10 +202,18 @@ namespace MeetingRoomBooking.Migrations
                         new
                         {
                             RoomId = 2,
-                            Amenities = "Computer",
+                            Amenities = "Computer & HDMI",
                             Capacity = 10,
-                            Description = "Medium-sized meeting room for team discussions.",
+                            Description = "Small-sized meeting room for team discussions.",
                             RoomName = "Conference Room B"
+                        },
+                        new
+                        {
+                            RoomId = 3,
+                            Amenities = "Proyektor",
+                            Capacity = 15,
+                            Description = "Medium-sized meeting room for team discussions.",
+                            RoomName = "Conference Room C"
                         });
                 });
 

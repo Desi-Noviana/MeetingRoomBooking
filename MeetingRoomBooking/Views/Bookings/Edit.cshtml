@@ -1,112 +1,109 @@
 ﻿@model MeetingRoomBooking.Models.Booking
+@using MeetingRoomBooking.Models
 
 @{
     ViewData["Title"] = "Edit Booking";
+
+    var statusColor = Model.Status switch
+    {
+        BookingStatus.Pending => "badge bg-warning text-dark",
+        BookingStatus.Approved => "badge bg-success",
+        BookingStatus.Rejected => "badge bg-dark text-light",
+        BookingStatus.Cancelled => "badge bg-danger",
+        _ => "badge bg-secondary"
+    };
 }
 
-<div class="container">
-    <h1>Edit Booking</h1>
+<div class="container py-4">
+    <h2 class="mb-3 text-primary fw-bold">Edit Your Booking</h2>
 
-    <div class="row">
-        <div class="col-md-8">
-            <div class="card">
-                <div class="card-header bg-primary text-white">
-                    <h5 class="mb-0">Booking Details</h5>
-                </div>
-                <div class="card-body">
-                    <form asp-action="Edit">
-                        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-                        <input type="hidden" asp-for="BookingId" />                     
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="RoomId" class="control-label">Room</label>
-                                    <select asp-for="RoomId" class="form-select" asp-items="ViewBag.RoomId"></select>
-                                    <span asp-validation-for="RoomId" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="Attendees" class="control-label"></label>
-                                    <input asp-for="Attendees" class="form-control" placeholder="Enter number of attendees" />
-                                    <span asp-validation-for="Attendees" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="MeetingTitle" class="control-label"></label>
-                            <input asp-for="MeetingTitle" class="form-control" placeholder="Enter meeting title" />
-                            <span asp-validation-for="MeetingTitle" class="text-danger"></span>
-                        </div>
-
-                        <div class="form-group mb-3">
-                            <label asp-for="Description" class="control-label"></label>
-                            <textarea asp-for="Description" class="form-control" rows="3" placeholder="Enter meeting description"></textarea>
-                            <span asp-validation-for="Description" class="text-danger"></span>
-                        </div>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="StartTime" class="control-label"></label>
-                                    <input asp-for="StartTime" class="form-control" type="datetime-local" />
-                                    <span asp-validation-for="StartTime" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="EndTime" class="control-label"></label>
-                                    <input asp-for="EndTime" class="form-control" type="datetime-local" />
-                                    <span asp-validation-for="EndTime" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <hr />
-                        <h5>Contact Information</h5>
-
-                        <div class="row mb-3">
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="EmployeeId" class="control-label"></label>
-                                    <input asp-for="EmployeeId" class="form-control" placeholder="Your EmployeeId" />
-                                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
-                                </div>
-                            </div>
-                            <div class="col-md-6">
-                                <div class="form-group">
-                                    <label asp-for="RoomId" class="control-label"></label>
-                                    <input asp-for="RoomId" class="form-control" placeholder="Your RoomId" />
-                                    <span asp-validation-for="RoomId" class="text-danger"></span>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-group mt-4">
-                            <button type="submit" class="btn btn-primary">Save Changes</button>
-                            <a asp-action="Index" class="btn btn-secondary">Back to List</a>
-                        </div>
-                    </form>
-                </div>
-            </div>
+    @if (Model.EndTime < DateTime.Now)
+    {
+        <div class="alert alert-warning">
+            <strong>Heads up:</strong> This booking has already ended.
         </div>
-        <div class="col-md-4">
-            <div class="card bg-light">
-                <div class="card-header">
-                    <h5>Editing Information</h5>
+    }
+    @if (Model.IsCancelled)
+    {
+        <div class="alert alert-danger">
+            <strong>Notice:</strong> This booking has been cancelled.
+        </div>
+    }
+
+    <div class="mb-4">
+        <span class="@statusColor px-3 py-2">Status: @Model.Status</span>
+    </div>
+
+    <div class="card shadow-sm border-0">
+        <div class="card-body">
+            <form asp-action="Edit">
+                <input type="hidden" asp-for="BookingId" />
+
+                <div class="mb-3">
+                    <label asp-for="EmployeeId" class="form-label">Booked By</label>
+                    <select asp-for="EmployeeId" class="form-select" asp-items="ViewBag.EmployeeId">
+                        <option value="">-- Select employee --</option>
+                    </select>
+                    <span asp-validation-for="EmployeeId" class="text-danger small"></span>
                 </div>
-                <div class="card-body">
-                    <p>You can modify any details of this booking, but please note:</p>
-                    <ul>
-                        <li>Changing date/time will require availability verification</li>
-                        <li>Changing room may affect availability</li>
-                        <li>Only administrators can change booking status</li>
-                        <li>Bookings can only be edited up to 24 hours before start time</li>
-                    </ul>
-                    <hr />
+
+                <div class="mb-3">
+                    <label asp-for="Email" class="form-label">Email</label>
+                    <input asp-for="Email" class="form-control" placeholder="you@company.com" />
+                    <span asp-validation-for="Email" class="text-danger small"></span>
                 </div>
-            </div>
+
+                <div class="mb-3">
+                    <label asp-for="RoomId" class="form-label">Room</label>
+                    <select asp-for="RoomId" class="form-select" asp-items="ViewBag.RoomId">
+                        <option value="">-- Select room --</option>
+                    </select>
+                    <span asp-validation-for="RoomId" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="MeetingTitle" class="form-label">Meeting Title</label>
+                    <input asp-for="MeetingTitle" class="form-control" placeholder="e.g. Weekly Sync" />
+                    <span asp-validation-for="MeetingTitle" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Description" class="form-label">Description</label>
+                    <textarea asp-for="Description" class="form-control" rows="3" placeholder="Optional notes or agenda..."></textarea>
+                    <span asp-validation-for="Description" class="text-danger small"></span>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="Attendees" class="form-label">Number of Attendees</label>
+                    <input asp-for="Attendees" class="form-control" id="NumberOfAttendees" />
+                    <span asp-validation-for="Attendees" class="text-danger small"></span>
+                </div>
+
+                <div class="row g-3 mb-3">
+                    <div class="col-md-6">
+                        <label asp-for="StartTime" class="form-label">Start Time</label>
+                        <input asp-for="StartTime" class="form-control" type="datetime-local" value="@Model.StartTime.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="StartTime" class="text-danger small"></span>
+                    </div>
+                    <div class="col-md-6">
+                        <label asp-for="EndTime" class="form-label">End Time</label>
+                        <input asp-for="EndTime" class="form-control" type="datetime-local" value="@Model.EndTime.ToString("yyyy-MM-ddTHH:mm")" />
+                        <span asp-validation-for="EndTime" class="text-danger small"></span>
+                    </div>
+                </div>
+
+                <div class="mb-3">
+                    <label asp-for="CancellationCode" class="form-label">Cancellation Code</label>
+                    <input asp-for="CancellationCode" class="form-control" readonly />
+                </div>
+
+                <div class="d-flex justify-content-between mt-4">
+                    <a asp-action="Index" class="btn btn-outline-secondary">Back to List</a>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-pencil-square me-1"></i> Update Booking
+                    </button>
+                </div>
+            </form>
         </div>
     </div>
 </div>
@@ -117,16 +114,15 @@
     }
 
     <script>
-        // Auto-adjust end time when start time changes (add 1 hour)
-        $(document).ready(function() {
-            $("#RoomId").change(function() {
+        $(document).ready(function () {
+            $("#RoomId").change(function () {
                 var selectedRoomId = $(this).val();
                 if (selectedRoomId) {
                     $.ajax({
                         url: '@Url.Action("GetRoomCapacity", "Bookings")',
                         type: 'GET',
                         data: { roomId: selectedRoomId },
-                        success: function(capacity) {
+                        success: function (capacity) {
                             if (capacity > 0) {
                                 $("#NumberOfAttendees").attr("max", capacity);
                                 $("#NumberOfAttendees").attr("placeholder", "Max: " + capacity + " attendees");
